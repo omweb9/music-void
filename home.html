@@ -1,0 +1,109 @@
+<!-- Void Music - home.html -->
+<!-- الصفحة الرئيسية: ترندات + سمعته مؤخراً + فنانين مقترحين -->
+
+<section id="page-home" class="page active">
+  <!-- ترحيب -->
+  <div class="hero">
+    <img src="logo.png" onerror="this.src='logo.svg'" class="hero-logo" alt="Void Music">
+    <h1>أهلاً بيك في <span>Void Music</span> 🎵</h1>
+    <p>اسمع، حمّل، واحفظ أغانيك المفضلة — من غير إعلانات</p>
+    <button class="btn-primary" onclick="showPage('search')">🔍 ابدأ البحث</button>
+  </div>
+
+  <!-- بحث سريع -->
+  <div class="quick-search">
+    <input id="homeSearchInput" type="text" placeholder="🔍 دور على أغنية أو فنان..." onkeydown="if(event.key==='Enter') quickSearch(this.value)">
+    <button onclick="quickSearch(document.querySelector('#homeSearchInput').value)">بحث</button>
+  </div>
+
+  <!-- ترندات -->
+  <div class="section-head">
+    <h2>🔥 ترندات دلوقتي</h2>
+    <button class="btn-ghost" onclick="refreshTrending()">تحديث</button>
+  </div>
+  <div id="trendingList" class="grid"></div>
+
+  <!-- سمعته مؤخراً -->
+  <div class="section-head">
+    <h2>🕒 سمعته مؤخراً</h2>
+    <button class="btn-ghost" onclick="clearRecent()">مسح</button>
+  </div>
+  <div id="recentList" class="list"></div>
+  <div id="recentEmpty" class="empty-box">
+    <p>لسه مسمعتش حاجة، شغّل أول أغنية وهتظهر هنا</p>
+  </div>
+
+  <!-- فنانين مقترحين -->
+  <div class="section-head">
+    <h2>⭐ فنانين ممكن يعجبوك</h2>
+  </div>
+  <div class="artists-row">
+    <div class="artist-chip" onclick="openArtist('【entity-Amr Diab¦canonical_name=Amr Diab】')"><img src="placeholder.png"><span>【entity-عمرو دياب¦canonical_name=عمرو دياب】</span></div>
+    <div class="artist-chip" onclick="openArtist('Cairokee')"><img src="placeholder.png"><span>【entity-كايروكي¦canonical_name=كايروكي】</span></div>
+    <div class="artist-chip" onclick="openArtist('Sherine')"><img src="placeholder.png"><span>شيرين</span></div>
+    <div class="artist-chip" onclick="openArtist('【entity-Billie Eilish¦canonical_name=Billie Eilish】')"><img src="placeholder.png"><span>【entity-Billie Eilish¦canonical_name=Billie Eilish】</span></div>
+    <div class="artist-chip" onclick="openArtist('【entity-The Weeknd¦canonical_name=The Weeknd】')"><img src="placeholder.png"><span>【entity-The Weeknd¦canonical_name=The Weeknd】</span></div>
+    <div class="artist-chip" onclick="openArtist('Marwan Pablo')"><img src="placeholder.png"><span>【entity-مروان بابلو¦canonical_name=مروان بابلو】</span></div>
+  </div>
+
+  <!-- مكتبتك باختصار -->
+  <div class="section-head">
+    <h2>❤️ مكتبتك</h2>
+    <button class="btn-ghost" onclick="showPage('library')">عرض الكل</button>
+  </div>
+  <div id="homeLibraryPreview" class="list"></div>
+</section>
+
+<script>
+function quickSearch(q){
+  if(!q) return;
+  if(window.searchMusic) window.searchMusic(q.trim());
+  showPage('search');
+  const inp = document.querySelector('#searchInput');
+  if(inp) inp.value = q.trim();
+}
+function refreshTrending(){
+  if(window.loadTrending) window.loadTrending();
+  else if(window.searchMusic) window.searchMusic('Top Hits 2026');
+}
+function clearRecent(){
+  localStorage.setItem('void_recent', '[]');
+  renderHomeRecent();
+}
+function renderHomeRecent(){
+  const recent = JSON.parse(localStorage.getItem('void_recent') || '[]');
+  const box = document.querySelector('#recentList');
+  const empty = document.querySelector('#recentEmpty');
+  if(!box) return;
+  if(empty) empty.style.display = recent.length ? 'none' : 'block';
+  box.innerHTML = recent.slice(0,5).map((t,i)=>`
+    <div class="card" onclick="playFromRecent(${i})">
+      <img src="${t.artworkUrl100 ? t.artworkUrl100.replace('100x100bb.jpg','600x600bb.jpg') : 'placeholder.png'}" onerror="this.src='placeholder.png'">
+      <div class="info"><b>${t.trackName}</b><span>${t.artistName}</span></div>
+      <button>▶️</button>
+    </div>
+  `).join('');
+}
+function playFromRecent(i){
+  const recent = JSON.parse(localStorage.getItem('void_recent') || '[]');
+  const t = recent[i];
+  if(t && window.playTrack) window.playTrack(t, recent);
+}
+function renderHomeLibraryPreview(){
+  const lib = JSON.parse(localStorage.getItem('void_library') || '[]');
+  const box = document.querySelector('#homeLibraryPreview');
+  if(!box) return;
+  if(!lib.length){ box.innerHTML = '<p class="empty">مكتبتك فاضية، دوس 🤍 على أي أغنية</p>'; return; }
+  box.innerHTML = lib.slice(0,3).map((t,i)=>`
+    <div class="card"><img src="${t.artworkUrl100 ? t.artworkUrl100.replace('100x100bb.jpg','600x600bb.jpg') : 'placeholder.png'}" onerror="this.src='placeholder.png'">
+    <div class="info"><b>${t.trackName}</b><span>${t.artistName}</span></div></div>
+  `).join('');
+}
+window.quickSearch = quickSearch;
+window.refreshTrending = refreshTrending;
+window.clearRecent = clearRecent;
+window.renderHomeRecent = renderHomeRecent;
+window.playFromRecent = playFromRecent;
+window.renderHomeLibraryPreview = renderHomeLibraryPreview;
+document.addEventListener('DOMContentLoaded', ()=>{ renderHomeRecent(); renderHomeLibraryPreview(); });
+</script>

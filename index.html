@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Void Music 🎵</title>
+  <meta name="description" content="اسمع، حمّل، واحفظ أغانيك المفضلة — من غير إعلانات">
+  <meta name="theme-color" content="#7c3aed">
+
+  <!-- PWA - بيخليه تطبيق مش موقع -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Void Music">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="icon" type="image/png" href="icon-192.png">
+
+  <!-- الشكل -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ===== الهيدر ===== -->
+  <header>
+    <div class="logo" onclick="showPage('home')">
+      <img src="logo.png" onerror="this.src='logo.svg'" alt="Void Music">
+      <b>VOID <span>MUSIC</span></b>
+    </div>
+    <button class="install-btn" onclick="installApp()">📲 ثبّت التطبيق</button>
+  </header>
+
+  <!-- ===== شريط التنقل ===== -->
+  <nav>
+    <button class="nav-btn active" data-page="home" onclick="showPage('home')">🏠 الرئيسية</button>
+    <button class="nav-btn" data-page="search" onclick="showPage('search')">🔍 بحث</button>
+    <button class="nav-btn" data-page="library" onclick="showPage('library')">❤️ مكتبتي</button>
+    <button class="nav-btn" data-page="downloads" onclick="showPage('downloads')">⬇️ التحميلات</button>
+  </nav>
+
+  <!-- مكان رسايل التثبيت للآيفون / أندرويد -->
+  <div id="installInstructions" style="display:none"></div>
+  <p id="status" class="hint"></p>
+
+  <!-- ===== الرئيسية ===== -->
+  <!-- الكود الكامل في home.html -->
+  <section id="page-home" class="page active">
+    <div class="hero">
+      <img src="logo.png" onerror="this.src='logo.svg'" class="hero-logo" alt="Void Music">
+      <h1>أهلاً بيك في <span>Void Music</span> 🎵</h1>
+      <p>اسمع، حمّل، واحفظ أغانيك المفضلة — من غير إعلانات</p>
+      <button class="btn-primary" onclick="showPage('search')">🔍 ابدأ البحث</button>
+    </div>
+
+    <div class="quick-search">
+      <input id="homeSearchInput" type="text" placeholder="🔍 دور على أغنية أو فنان..." onkeydown="if(event.key==='Enter') quickSearch(this.value)">
+      <button onclick="quickSearch(document.querySelector('#homeSearchInput').value)">بحث</button>
+    </div>
+
+    <div class="section-head"><h2>🔥 ترندات دلوقتي</h2><button class="btn-ghost" onclick="refreshTrending()">تحديث</button></div>
+    <div id="trendingList" class="grid"></div>
+
+    <div class="section-head"><h2>🕒 سمعته مؤخراً</h2><button class="btn-ghost" onclick="clearRecent()">مسح</button></div>
+    <div id="recentList" class="list"></div>
+    <div id="recentEmpty" class="empty-box"><p>لسه مسمعتش حاجة، شغّل أول أغنية وهتظهر هنا</p></div>
+
+    <div class="section-head"><h2>⭐ فنانين ممكن يعجبوك</h2></div>
+    <div class="artists-row">
+      <div class="artist-chip" onclick="openArtist('【entity-Amr Diab¦canonical_name=Amr Diab】')"><img src="placeholder.png"><span>عمرو دياب</span></div>
+      <div class="artist-chip" onclick="openArtist('【entity-Cairokee¦canonical_name=Cairokee】')"><img src="placeholder.png"><span>كايروكي</span></div>
+      <div class="artist-chip" onclick="openArtist('【entity-Sherine¦canonical_name=Sherine】')"><img src="placeholder.png"><span>شيرين</span></div>
+      <div class="artist-chip" onclick="openArtist('【entity-Billie Eilish¦canonical_name=Billie Eilish】')"><img src="placeholder.png"><span>【entity-Billie Eilish¦canonical_name=Billie Eilish】</span></div>
+      <div class="artist-chip" onclick="openArtist('【entity-The Weeknd¦canonical_name=The Weeknd】')"><img src="placeholder.png"><span>【entity-The Weeknd¦canonical_name=The Weeknd】</span></div>
+      <div class="artist-chip" onclick="openArtist('【entity-Marwan Pablo¦canonical_name=Marwan Pablo】')"><img src="placeholder.png"><span>مروان بابلو</span></div>
+    </div>
+
+    <div class="section-head"><h2>❤️ مكتبتك</h2><button class="btn-ghost" onclick="showPage('library')">عرض الكل</button></div>
+    <div id="homeLibraryPreview" class="list"></div>
+  </section>
+
+  <!-- ===== البحث ===== -->
+  <!-- الكود الكامل في search.html -->
+  <section id="page-search" class="page">
+    <div class="page-head"><h2>🔍 بحث</h2><p>دور على أي أغنية أو فنان أو ألبوم</p></div>
+
+    <form id="searchForm">
+      <input id="searchInput" type="text" placeholder="🔍 اكتب اسم أغنية أو فنان..." autocomplete="off">
+      <button type="submit">بحث</button>
+    </form>
+
+    <div class="quick-search">
+      <button class="btn-ghost" onclick="searchSuggestion('【entity-Amr Diab¦canonical_name=Amr Diab】')">عمرو دياب</button>
+      <button class="btn-ghost" onclick="searchSuggestion('【entity-Cairokee¦canonical_name=Cairokee】')">كايروكي</button>
+      <button class="btn-ghost" onclick="searchSuggestion('【entity-Billie Eilish¦canonical_name=Billie Eilish】')">【entity-Billie Eilish¦canonical_name=Billie Eilish】</button>
+      <button class="btn-ghost" onclick="clearSearch()">مسح</button>
+    </div>
+
+    <div id="searchArtists"></div>
+    <div id="results" class="list"><p class="empty">اكتب اسم أغنية أو فنان فوق وابدأ 🔍</p></div>
+  </section>
+
+  <!-- ===== صفحة الفنان ===== -->
+  <!-- الكود الكامل في artist.html -->
+  <section id="page-artist" class="page">
+    <button class="btn-ghost" onclick="showPage('search')">← رجوع للبحث</button>
+    <div id="artistHeader"></div>
+    <div class="section-head"><h2>💿 ألبومات</h2></div>
+    <div id="artistAlbums" class="grid"></div>
+    <div class="section-head"><h2>🎵 كل الأغاني</h2></div>
+    <div id="artistSongs" class="list"></div>
+  </section>
+
+  <!-- ===== المكتبة ===== -->
+  <!-- الكود الكامل في library.html -->
+  <section id="page-library" class="page">
+    <div class="page-head"><h2>❤️ مكتبتي</h2><p id="libraryCount">مكتبتك فاضية لسه</p></div>
+    <div class="library-tools">
+      <input id="librarySearch" type="text" placeholder="🔍 دور في مكتبتك..." oninput="filterLibrary(this.value)">
+      <button class="btn-ghost" onclick="playAllLibrary()">▶️ تشغيل الكل</button>
+      <button class="btn-ghost" onclick="createPlaylist()">➕ قايمة جديدة</button>
+      <button class="btn-danger" onclick="clearLibrary()">🗑️ مسح الكل</button>
+    </div>
+    <div id="libraryEmpty" class="empty-box">
+      <img src="placeholder.png" alt="">
+      <h3>مكتبتك فاضية</h3>
+      <p>دوس 🤍 على أي أغنية عشان تحفظها هنا</p>
+      <button class="btn-primary" onclick="showPage('search')">🔍 روح للبحث</button>
+    </div>
+    <div id="libraryList" class="list"></div>
+    <div class="section-head"><h2>🎵 قوائم التشغيل</h2></div>
+    <div id="playlistsList" class="list"></div>
+  </section>
+
+  <!-- ===== التحميلات ===== -->
+  <!-- الكود الكامل في downloads.html -->
+  <section id="page-downloads" class="page">
+    <div class="page-head"><h2>⬇️ التحميلات</h2><p id="downloadsCount">لسه محملتش حاجة</p></div>
+    <div class="downloads-tools">
+      <input id="downloadsSearch" type="text" placeholder="🔍 دور في تحميلاتك..." oninput="filterDownloads(this.value)">
+      <button class="btn-ghost" onclick="playAllDownloads()">▶️ تشغيل الكل</button>
+      <button class="btn-danger" onclick="clearDownloads()">🗑️ مسح الكل</button>
+    </div>
+    <div id="downloadsEmpty" class="empty-box">
+      <img src="placeholder.png" alt="">
+      <h3>لسه محملتش أي أغنية</h3>
+      <p>دوس على زرار ⬇️ جنب أي أغنية، هتنزل على هاتفك وتظهر هنا</p>
+      <button class="btn-primary" onclick="showPage('search')">🔍 روح للبحث</button>
+    </div>
+    <div id="downloadsList" class="list"></div>
+    <p class="hint">💡 التحميل هنا هو معاينة رسمية 30 ثانية من iTunes.</p>
+  </section>
+
+  <!-- ===== المشغل الثابت تحت ===== -->
+  <div id="player">
+    <div class="player-top">
+      <img id="pArt" src="placeholder.png" alt="">
+      <div class="info"><b id="pTitle">اختار أغنية</b><span id="pArtist">Void Music</span></div>
+      <button id="pFavBtn">🤍</button>
+      <button id="pDownloadBtn">⬇️</button>
+    </div>
+    <div class="player-controls">
+      <button id="pShuffleBtn" title="عشوائي">🔀</button>
+      <button id="pPrevBtn">⏮️</button>
+      <button id="pPlayBtn" class="main">▶️</button>
+      <button id="pNextBtn">⏭️</button>
+      <button id="pRepeatBtn" title="تكرار">🔁</button>
+    </div>
+    <div class="player-bottom">
+      <span id="pTime">0s / 30s</span>
+      <input id="progress" type="range" min="0" max="100" value="0">
+      <span id="volumeIcon">🔊</span>
+      <input id="volume" type="range" min="0" max="1" step="0.1" value="1">
+    </div>
+  </div>
+
+  <!-- ===== كل ملفات JS - بالترتيب ده بالظبط ===== -->
+  <script src="player.js"></script>
+  <script src="search.js"></script>
+  <script src="artist.js"></script>
+  <script src="library.js"></script>
+  <script src="downloads.js"></script>
+  <script src="install.js"></script>
+  <script src="app.js"></script>
+
+  <!-- تسجيل الـ Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').then(() => {
+        console.log('Void Music: Service Worker شغال ✅');
+      }).catch(() => {
+        console.log('Service Worker مش شغال');
+      });
+    }
+
+    // التنقل بين الصفحات - لو artist.js مش متحمل
+    if (typeof showPage === 'undefined') {
+      function showPage(name) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        const el = document.querySelector('#page-' + name);
+        if (el) el.classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.page === name));
+        window.scrollTo(0, 0);
+      }
+      window.showPage = showPage;
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!-- Void Music - downloads.html -->
+<!-- صفحة التحميلات: الأغاني اللي نزلتها على هاتفك + المتحفظة جوه التطبيق -->
+
+<section id="page-downloads" class="page">
+  <div class="page-head">
+    <h2>⬇️ التحميلات</h2>
+    <p id="downloadsCount">لسه محملتش حاجة</p>
+  </div>
+
+  <!-- أدوات التحميلات -->
+  <div class="downloads-tools">
+    <input id="downloadsSearch" type="text" placeholder="🔍 دور في تحميلاتك..." oninput="filterDownloads(this.value)">
+    <button class="btn-ghost" onclick="playAllDownloads()">▶️ تشغيل الكل</button>
+    <button class="btn-danger" onclick="clearDownloads()">🗑️ مسح الكل</button>
+  </div>
+
+  <!-- تنبيه لو فاضي -->
+  <div id="downloadsEmpty" class="empty-box">
+    <img src="placeholder.png" alt="">
+    <h3>لسه محملتش أي أغنية</h3>
+    <p>دوس على زرار ⬇️ جنب أي أغنية، هتنزل على هاتفك وتظهر هنا</p>
+    <button class="btn-primary" onclick="showPage('search')">🔍 روح للبحث</button>
+  </div>
+
+  <!-- قايمة التحميلات - بتتملي من downloads.js -->
+  <div id="downloadsList" class="list"></div>
+
+  <!-- معلومة صغيرة -->
+  <p class="hint">
+    💡 التحميل هنا هو معاينة رسمية 30 ثانية من iTunes.
+    لو عايز النسخة الكاملة، لازم تشترك في 【entity-Apple Music¦canonical_name=Apple Music】 أو 【entity-Spotify¦canonical_name=Spotify】.
+  </p>
+</section>
+
+<script>
+// لو الملف ده اتفتح لوحده، الـ functions دي بتشتغل من downloads.js
+// دي نسخة احتياطية لو downloads.js مش متحمل
+if(typeof renderDownloads === 'undefined'){
+  function renderDownloads(){
+    const list = document.querySelector('#downloadsList');
+    const empty = document.querySelector('#downloadsEmpty');
+    const count = document.querySelector('#downloadsCount');
+    const downloads = JSON.parse(localStorage.getItem('void_downloads') || '[]');
+    if(count) count.textContent = downloads.length ? `${downloads.length} أغنية محملة` : 'لسه محملتش حاجة';
+    if(empty) empty.style.display = downloads.length ? 'none' : 'block';
+    if(!list) return;
+    list.innerHTML = downloads.map((t,i)=>`
+      <div class="card">
+        <img src="${t.artworkUrl100 ? t.artworkUrl100.replace('100x100bb.jpg','600x600bb.jpg') : 'placeholder.png'}" onerror="this.src='placeholder.png'">
+        <div class="info">
+          <b>${t.trackName}</b>
+          <span>${t.artistName}</span>
+          <small>تم التحميل • ${new Date(t.downloadedAt).toLocaleDateString('ar-EG')}</small>
+        </div>
+        <button onclick="playFromDownloads(${i})">▶️</button>
+        <button onclick="removeDownload(${t.trackId})">❌</button>
+      </div>
+    `).join('');
+  }
+  window.renderDownloads = renderDownloads;
+  document.addEventListener('DOMContentLoaded', renderDownloads);
+}
+</script>
